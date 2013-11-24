@@ -1,2 +1,2 @@
-web: gunicorn hello:app
+web: gunicorn sic2activity:app
 
