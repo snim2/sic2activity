@@ -1,7 +1,64 @@
 import os
-from flask import Flask
+from flask import Flask, abort, jsonify
+
+# Import Office of National Statistics data
+import data
 
 app = Flask(__name__)
+
+data_2003, data_2007 = data.load_data()
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return jsonify(error=404, text=e), 404
+
+
+@app.route('/api/sics2007/')
+def sics2007():
+    return jsonify(sic_2007=data_2007.keys())
+
+
+@app.route('/api/sics2003/')
+def sics2003():
+    return jsonify(sic_2003=data_2003.keys())
+
+
+@app.route('/api/sics/')
+def sics():
+    return jsonify(sic_2007=data_2007.keys())
+
+
+@app.route('/api/activities/')
+def activities():
+    return jsonify(activities=data_2003.values())
+
+
+@app.route('/api/sic/<code>')
+def sic(code=''):
+    try:
+        act = data_2007[code]
+        return jsonify(sic=code, activity=act)
+    except KeyError:
+        abort(404)
+
+
+@app.route('/api/sic/2003/<code>')
+def sic2003(code=''):
+    try:
+        act = data_2003[code]
+        return jsonify(sic=code, activity=act)
+    except KeyError:
+        abort(404)
+
+
+@app.route('/api/sic/2007/<code>')
+def sic2007(code=''):
+    try:
+        act = data_2007[code]
+        return jsonify(sic=code, activity=act)
+    except KeyError:
+        abort(404)
+
 
 @app.route('/')
 def index():
